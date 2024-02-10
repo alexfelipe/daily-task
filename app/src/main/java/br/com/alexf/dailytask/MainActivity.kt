@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import br.com.alexf.dailytask.mocks.generateTasks
-import br.com.alexf.dailytask.ui.screens.TasksListScreen
+import androidx.navigation.compose.rememberNavController
+import br.com.alexf.dailytask.ui.navigation.DailyTaskNavHost
 import br.com.alexf.dailytask.ui.theme.DailyTaskTheme
 
 class MainActivity : ComponentActivity() {
@@ -16,14 +16,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             DailyTaskTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    TasksListScreen(tasks = generateTasks(10))
+                    val navController = rememberNavController()
+                    DailyTaskNavHost(navController)
                 }
             }
         }
     }
+
 }
