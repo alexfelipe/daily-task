@@ -5,6 +5,5 @@ import java.time.LocalDateTime
 class Task(
     val title: String,
     val description: String,
-    val isDone: Boolean = false,
-    val createdAt: LocalDateTime
+    val createdAt: LocalDateTime = LocalDateTime.now()
 )
