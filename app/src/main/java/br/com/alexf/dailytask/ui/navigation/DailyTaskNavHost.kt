@@ -16,7 +16,6 @@ fun DailyTaskNavHost(navController: NavHostController) {
     val dao = remember {
         TaskDao()
     }
-
     NavHost(
         navController = navController,
         startDestination = "tasksList"

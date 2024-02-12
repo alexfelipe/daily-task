@@ -24,11 +24,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import br.com.alexf.dailytask.mocks.generateLoremAt
 import br.com.alexf.dailytask.models.Task
 import br.com.alexf.dailytask.ui.theme.DailyTaskTheme
 
+data class TaskFormState(
+    val title: String = "",
+    val onTitleChange: (String) -> Unit = {},
+    val description: String = "",
+    val onDescriptionChange: (String) -> Unit = {},
+)
+
 @Composable
 fun TaskFormScreen(
+    state: TaskFormState,
     onSaveClick: (Task) -> Unit,
     modifier: Modifier = Modifier,
     isSaving: Boolean = false
@@ -36,22 +45,16 @@ fun TaskFormScreen(
     var isSavingState by remember {
         mutableStateOf(isSaving)
     }
+    val title = state.title
+    val description = state.description
     Column(
         modifier
             .fillMaxSize()
             .padding(8.dp)
     ) {
-        var title by remember {
-            mutableStateOf("")
-        }
-        var description by remember {
-            mutableStateOf("")
-        }
         TextField(
             value = title,
-            onValueChange = {
-                title = it
-            },
+            onValueChange = state.onTitleChange,
             Modifier
                 .fillMaxWidth(),
             label = {
@@ -61,9 +64,7 @@ fun TaskFormScreen(
         Spacer(modifier = Modifier.size(8.dp))
         OutlinedTextField(
             value = description,
-            onValueChange = {
-                description = it
-            },
+            onValueChange = state.onDescriptionChange,
             Modifier
                 .fillMaxWidth()
                 .heightIn(min = 200.dp),
@@ -111,6 +112,7 @@ private fun TaskFormScreenPreview() {
     DailyTaskTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
             TaskFormScreen(
+                state = TaskFormState(),
                 onSaveClick = {}
             )
         }
@@ -119,10 +121,28 @@ private fun TaskFormScreenPreview() {
 
 @Preview
 @Composable
+private fun TaskFormScreenWithContentInTextFieldsPreview() {
+    DailyTaskTheme {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            TaskFormScreen(
+                state = TaskFormState(
+                    title = generateLoremAt(10),
+                    description = generateLoremAt(20)
+                ),
+                onSaveClick = {}
+            )
+        }
+    }
+}
+
+
+@Preview
+@Composable
 private fun TaskFormScreenWithIsSavingStateAsTruePreview() {
     DailyTaskTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
             TaskFormScreen(
+                state = TaskFormState(),
                 onSaveClick = {},
                 isSaving = true
             )

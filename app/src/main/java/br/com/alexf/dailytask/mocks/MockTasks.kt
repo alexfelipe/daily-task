@@ -9,7 +9,6 @@ fun generateTasks(amount: Int = 2) = List(amount) {
     Task(
         title = LoremIpsum(Random.nextInt(1, 20)).values.first(),
         description = LoremIpsum(Random.nextInt(1, 20)).values.first(),
-        isDone = Random.nextBoolean(),
         createdAt = LocalDateTime.now()
     )
 }

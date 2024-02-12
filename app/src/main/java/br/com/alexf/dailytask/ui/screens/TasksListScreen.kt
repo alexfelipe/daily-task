@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -51,29 +52,56 @@ fun TasksListScreen(
     modifier: Modifier = Modifier
 ) {
     Box(modifier.fillMaxSize()) {
-        LazyColumn(
-            Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(tasks) { task ->
-                var isCompact by rememberSaveable {
-                    mutableStateOf(true)
-                }
-                TaskItem(
-                    task, Modifier
-                        .clip(RoundedCornerShape(16.dp))
-                        .clickable {
-                            isCompact = !isCompact
-                        }
-                        .border(
-                            width = 1.dp,
-                            color = Color.Gray.copy(alpha = 0.5f),
-                            shape = RoundedCornerShape(16.dp)
+        when (tasks.isEmpty()) {
+            true -> {
+                Column(
+                    Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        Icons.Default.Done, null,
+                        Modifier.size(64.dp),
+                        tint = Color.Gray.copy(alpha = 0.8f)
+                    )
+                    Spacer(modifier = Modifier.size(16.dp))
+                    Text(
+                        text = "Sem tarefas",
+                        Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        style = LocalTextStyle.current.copy(
+                            fontSize = 24.sp,
+                            color = Color.Gray.copy(alpha = 0.8f)
                         )
-                        .padding(16.dp),
-                    isCompact = isCompact
-                )
+                    )
+                }
+            }
+
+            false -> {
+                LazyColumn(
+                    Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(tasks) { task ->
+                        var isCompact by rememberSaveable {
+                            mutableStateOf(true)
+                        }
+                        TaskItem(
+                            task, Modifier
+                                .clip(RoundedCornerShape(16.dp))
+                                .clickable {
+                                    isCompact = !isCompact
+                                }
+                                .border(
+                                    width = 1.dp,
+                                    color = Color.Gray.copy(alpha = 0.5f),
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                                .padding(16.dp),
+                            isCompact = isCompact
+                        )
+                    }
+                }
             }
         }
         ExtendedFloatingActionButton(
@@ -147,6 +175,19 @@ private fun TaskItemWithCompactStatePreview() {
             TaskItem(
                 task = generateTasks().random(),
                 isCompact = true
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun TasksListWithoutTasksScreenPreview() {
+    DailyTaskTheme {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            TasksListScreen(
+                tasks = emptyList(),
+                onNewTaskClick = {}
             )
         }
     }
