@@ -15,6 +15,12 @@ class TaskDao {
         }
     }
 
+    fun delete(task: Task) {
+        _tasks.update {
+            it - task
+        }
+    }
+
     companion object {
         private val _tasks = MutableStateFlow<List<Task>>(emptyList())
     }

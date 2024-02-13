@@ -28,6 +28,9 @@ fun DailyTaskNavHost(navController: NavHostController) {
             val tasks by dao.tasks.collectAsState()
             TasksListScreen(
                 tasks = tasks,
+                onDeleteTask = {
+                    dao.delete(it)
+                },
                 onNewTaskClick = {
                     navController.navigate("taskForm")
                 }
