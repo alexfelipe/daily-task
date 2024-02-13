@@ -29,6 +29,7 @@ import br.com.alexf.dailytask.models.Task
 import br.com.alexf.dailytask.ui.theme.DailyTaskTheme
 
 data class TaskFormState(
+    val taskId: String? = null,
     val title: String = "",
     val onTitleChange: (String) -> Unit = {},
     val description: String = "",

@@ -2,8 +2,10 @@ package br.com.alexf.dailytask.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,7 +40,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -52,12 +53,13 @@ import br.com.alexf.dailytask.ui.theme.DailyTaskTheme
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun TasksListScreen(
     tasks: List<Task>,
     onNewTaskClick: () -> Unit,
     onDeleteTask: (Task) -> Unit,
+    onEditTask: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier.fillMaxSize()) {
@@ -132,11 +134,20 @@ fun TasksListScreen(
                             },
                             dismissContent = {
                                 TaskItem(
-                                    task, Modifier
-                                        .taskItemModifier(clickable = {
-                                            isCompact = !isCompact
-                                        }
-                                        ),
+                                    task,
+                                    Modifier
+                                        .combinedClickable(
+                                            onClick = {
+                                                isCompact = !isCompact
+                                            },
+                                            onLongClick = {
+                                                onEditTask(task)
+                                            }
+                                        )
+                                        .background(
+                                            color = MaterialTheme.colorScheme.background,
+                                        )
+                                        .padding(16.dp),
                                     isCompact = isCompact
                                 )
                             }
@@ -163,18 +174,6 @@ fun TasksListScreen(
         }
     }
 }
-
-private fun Modifier.taskItemModifier(
-    clickable: () -> Unit
-): Modifier =
-    composed {
-        this
-            .clickable(onClick = clickable)
-            .background(
-                color = MaterialTheme.colorScheme.background,
-            )
-            .padding(16.dp)
-    }
 
 @Composable
 fun TaskItem(
@@ -217,7 +216,12 @@ private fun TaskItemPreview() {
         Surface(color = MaterialTheme.colorScheme.background) {
             TaskItem(
                 task = generateTasks(2).random(),
-                Modifier.taskItemModifier { },
+                Modifier
+                    .clickable(onClick = { })
+                    .background(
+                        color = MaterialTheme.colorScheme.background,
+                    )
+                    .padding(16.dp),
                 isCompact = false
             )
         }
@@ -231,7 +235,12 @@ private fun TaskItemWithCompactStatePreview() {
         Surface(color = MaterialTheme.colorScheme.background) {
             TaskItem(
                 task = generateTasks(2).random(),
-                Modifier.taskItemModifier { },
+                Modifier
+                    .clickable(onClick = { })
+                    .background(
+                        color = MaterialTheme.colorScheme.background,
+                    )
+                    .padding(16.dp),
                 isCompact = true
             )
         }
@@ -246,6 +255,7 @@ private fun TasksListWithoutTasksScreenPreview() {
             TasksListScreen(
                 tasks = emptyList(),
                 onNewTaskClick = {},
+                onEditTask = {},
                 onDeleteTask = {}
             )
         }
@@ -261,6 +271,7 @@ private fun TasksListScreenPreview() {
             TasksListScreen(
                 tasks = generateTasks(10),
                 onDeleteTask = {},
+                onEditTask = {},
                 onNewTaskClick = {}
             )
         }
