@@ -150,7 +150,7 @@ fun TaskItem(
 
 private fun LocalDateTime.formatToBrazilianDate(): String {
     return DateTimeFormatter
-        .ofPattern("dd/mm/yyyy HH:mm")
+        .ofPattern("dd/MM/yyyy HH:mm")
         .format(this)
 }
 
