@@ -1,5 +1,7 @@
 package br.com.alexf.dailytask.dao
 
+import android.util.Log
+import br.com.alexf.dailytask.mocks.generateTasks
 import br.com.alexf.dailytask.models.Task
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,13 +18,17 @@ class TaskDao {
     }
 
     fun delete(task: Task) {
-        _tasks.update {
-            it - task
+        _tasks.update { tasks ->
+            (tasks - task).also {
+                Log.i("TaskDao", "delete: $it")
+            }
         }
     }
 
     companion object {
-        private val _tasks = MutableStateFlow<List<Task>>(emptyList())
+        private val _tasks = MutableStateFlow(
+            generateTasks(10)
+        )
     }
 
 

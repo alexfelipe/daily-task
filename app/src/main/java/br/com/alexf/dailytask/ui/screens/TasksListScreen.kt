@@ -2,28 +2,25 @@ package br.com.alexf.dailytask.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissValue
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -34,14 +31,14 @@ import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -91,59 +88,62 @@ fun TasksListScreen(
             false -> {
                 LazyColumn(
                     Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(tasks) { task ->
+                    itemsIndexed(
+                        tasks,
+                        key = { _, task -> task.id }
+                    ) { index, task ->
                         var isCompact by rememberSaveable {
                             mutableStateOf(true)
                         }
-
                         val dismissState = rememberDismissState()
-                        if (dismissState.isDismissed(DismissDirection.EndToStart)) {
-                            onDeleteTask(task)
+                        dismissState.dismissDirection
+                        LaunchedEffect(dismissState.isDismissed(DismissDirection.EndToStart)) {
+                            if (dismissState.isDismissed(DismissDirection.EndToStart)) {
+                                onDeleteTask(task)
+                            }
                         }
-                        SwipeToDismiss(state = dismissState, background = {
-                            // this background is visible when we swipe.
-                            // it contains the icon
-
-                            // background color
-                            val backgroundColor by animateColorAsState(
-                                when (dismissState.targetValue) {
-                                    DismissValue.DismissedToStart -> Color.Red.copy(alpha = 0.8f)
-                                    else -> Color.White
+                        SwipeToDismiss(
+                            state = dismissState,
+                            directions = setOf(
+                                DismissDirection.EndToStart,
+                                DismissDirection.EndToStart
+                            ),
+                            background = {
+                                val backgroundColor by animateColorAsState(
+                                    when (dismissState.targetValue) {
+                                        DismissValue.DismissedToStart -> Color.Red.copy(alpha = 0.8f)
+                                        else -> Color.White
+                                    }, label = "backgroundForSwipe"
+                                )
+                                Box(
+                                    Modifier
+                                        .fillMaxSize()
+                                        .background(backgroundColor)
+                                        .padding(end = 16.dp), // inner padding
+                                    contentAlignment = Alignment.CenterEnd // place the icon at the end (left)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Delete,
+                                        contentDescription = "Delete",
+                                        tint = Color.White
+                                    )
                                 }
-                            )
-
-                            // icon size
-                            val iconScale by animateFloatAsState(
-                                targetValue = if (dismissState.targetValue == DismissValue.DismissedToStart) 1.3f else 0.5f
-                            )
-
-                            Box(
-                                Modifier
-                                    .fillMaxSize()
-                                    .background(color = backgroundColor)
-                                    .padding(end = 16.dp), // inner padding
-                                contentAlignment = Alignment.CenterEnd // place the icon at the end (left)
-                            ) {
-                                Icon(
-                                    modifier = Modifier.scale(iconScale),
-                                    imageVector = Icons.Outlined.Delete,
-                                    contentDescription = "Delete",
-                                    tint = Color.White
+                            },
+                            dismissContent = {
+                                TaskItem(
+                                    task, Modifier
+                                        .taskItemModifier(clickable = {
+                                            isCompact = !isCompact
+                                        }
+                                        ),
+                                    isCompact = isCompact
                                 )
                             }
-                        }, dismissContent = {
-                            TaskItem(
-                                task, Modifier
-                                    .taskItemModifier(clickable = {
-                                        isCompact = !isCompact
-                                    }
-                                    ),
-                                isCompact = isCompact
-                            )
-                        })
+                        )
+                        if (index < tasks.lastIndex) {
+                            Divider(color = Color.Gray.copy(alpha = 0.5f), thickness = 0.5.dp)
+                        }
                     }
                 }
             }
@@ -167,14 +167,14 @@ fun TasksListScreen(
 private fun Modifier.taskItemModifier(
     clickable: () -> Unit
 ): Modifier =
-    clip(RoundedCornerShape(16.dp))
-        .clickable(onClick = clickable)
-        .border(
-            width = 1.dp,
-            color = Color.Gray.copy(alpha = 0.5f),
-            shape = RoundedCornerShape(16.dp)
-        )
-        .padding(16.dp)
+    composed {
+        this
+            .clickable(onClick = clickable)
+            .background(
+                color = MaterialTheme.colorScheme.background,
+            )
+            .padding(16.dp)
+    }
 
 @Composable
 fun TaskItem(
@@ -213,11 +213,10 @@ private fun LocalDateTime.formatToBrazilianDate(): String {
 @Preview
 @Composable
 private fun TaskItemPreview() {
-
     DailyTaskTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
             TaskItem(
-                task = generateTasks().random(),
+                task = generateTasks(2).random(),
                 Modifier.taskItemModifier { },
                 isCompact = false
             )
@@ -231,7 +230,7 @@ private fun TaskItemWithCompactStatePreview() {
     DailyTaskTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
             TaskItem(
-                task = generateTasks().random(),
+                task = generateTasks(2).random(),
                 Modifier.taskItemModifier { },
                 isCompact = true
             )
