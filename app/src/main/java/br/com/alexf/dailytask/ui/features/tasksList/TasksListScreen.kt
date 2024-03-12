@@ -2,14 +2,17 @@ package br.com.alexf.dailytask.ui.features.tasksList
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
@@ -22,15 +25,27 @@ import androidx.compose.ui.unit.dp
 import kotlin.random.Random
 
 @Composable
-fun TasksListScreen() {
-    Column(
-        Modifier.fillMaxSize()
-    ) {
-        TaskItem(
-            LoremIpsum(Random.nextInt(1, 10)).values.first(),
-            LoremIpsum(Random.nextInt(1, 10)).values.first(),
-            "01/01/2024 00:00"
-        )
+fun TasksListScreen(
+    onNewTaskClick: () -> Unit
+) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        ExtendedFloatingActionButton(
+            onClick = onNewTaskClick,
+            Modifier
+                .padding(16.dp)
+                .align(Alignment.BottomEnd)
+        ) {
+            Text(text = "Nova tarefa")
+        }
+        Column(
+            Modifier.fillMaxSize()
+        ) {
+            TaskItem(
+                LoremIpsum(Random.nextInt(1, 10)).values.first(),
+                LoremIpsum(Random.nextInt(1, 10)).values.first(),
+                "01/01/2024 00:00"
+            )
+        }
     }
 }
 
@@ -129,5 +144,7 @@ private fun TaskItem4Preview() {
 )
 @Composable
 private fun TasksListScreenPreview() {
-    TasksListScreen()
+    TasksListScreen(onNewTaskClick = {
+
+    })
 }
