@@ -22,10 +22,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
-import kotlin.random.Random
+import br.com.alexf.dailytask.models.Task
 
 @Composable
 fun TasksListScreen(
+    tasks: List<Task>,
     onNewTaskClick: () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -40,11 +41,13 @@ fun TasksListScreen(
         Column(
             Modifier.fillMaxSize()
         ) {
-            TaskItem(
-                LoremIpsum(Random.nextInt(1, 10)).values.first(),
-                LoremIpsum(Random.nextInt(1, 10)).values.first(),
-                "01/01/2024 00:00"
-            )
+            tasks.forEach { task ->
+                TaskItem(
+                    task.title,
+                    task.description,
+                    "01/01/2024 00:00"
+                )
+            }
         }
     }
 }
@@ -144,7 +147,14 @@ private fun TaskItem4Preview() {
 )
 @Composable
 private fun TasksListScreenPreview() {
-    TasksListScreen(onNewTaskClick = {
+    TasksListScreen(
+        tasks = List(10) {
+            Task(
+                title = LoremIpsum(it + 1).values.first(),
+                description = LoremIpsum(it + 1).values.first()
+            )
+        },
+        onNewTaskClick = {
 
-    })
+        })
 }
